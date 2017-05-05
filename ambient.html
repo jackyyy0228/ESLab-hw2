@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>	
+  <script src="/socket.io/socket.io.js"></script>
+<script src = 'https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.js'></script>
+	<script language="javascript" type="text/javascript">
+	window.onload = function () {
+
+		var socket = io();
+		var dpsLight = []; // dataPoints
+		var dpsSound = []; // dataPoints
+
+		var chartLight = new CanvasJS.Chart("chartContainer1",{
+			title :{
+				text: "Light"
+			},			
+			data: [{
+				type: "line",
+				dataPoints: dpsLight
+			}]
+		});
+		var chartSound = new CanvasJS.Chart("chartContainer2",{
+			title :{
+				text: "Sound"
+			},			
+			data: [{
+				type: "line",
+				dataPoints: dpsSound
+			}]
+		});
+		var xVal = 0.0;
+		var dataLength = 20; // number of dataPoints visible at any point
+
+
+		socket.on('ambient', function (data) {
+		 // Get points of light and sound data.
+      dpsLight.push({
+        x: xVal,
+        y: data.light*1000
+      });
+      dpsSound.push({
+        x: xVal,
+        y: data.sound*1000
+      });
+      xVal+=0.5;
+      if (dpsSound.length > dataLength)
+      {
+        dpsSound.shift();
+        dpsLight.shift();
+      };
+      if (dpsSound.length <= dataLength){
+        chartLight.render();
+        chartSound.render();
+      };
+
+		});
+  };
+  
+	</script>
+</head>
+<body>
+	<div id="chartContainer1" style="height: 300px; width:100%;">
+	</div>
+	<div id="chartContainer2" style="height: 300px; width:100%;">
+	</div>
+</body>
+</html>
